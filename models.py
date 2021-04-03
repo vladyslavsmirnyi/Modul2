@@ -1,7 +1,14 @@
 import random
+from enum import Enum
 
 from exceptions import EnemyDown, GameOver
 import settings
+
+
+class Attack(Enum):
+    WIZARD = 1
+    WARRIOR = 2
+    BANDIT = 3
 
 
 class Enemy:
@@ -11,7 +18,7 @@ class Enemy:
 
     @staticmethod
     def select_attack():
-        return random.randint(1, 3)
+        return Attack(random.randint(1, 3))
 
     def decrease_lives(self):
         self.lives -= 1
@@ -27,11 +34,11 @@ class Player:
 
     @staticmethod
     def fight(attack, defense):
-        if (attack == 1 and defense == 2) or \
-           (attack == 2 and defense == 3) or \
-           (attack == 3 and defense == 1):
+        if (attack is Attack.WIZARD and defense is Attack.WARRIOR) or \
+           (attack is Attack.WARRIOR and defense is Attack.BANDIT) or \
+           (attack is Attack.BANDIT and defense is Attack.WIZARD):
             return 1
-        elif attack == defense:
+        elif attack is defense:
             return 0
         else:
             return -1
@@ -69,9 +76,12 @@ class Player:
     def _get_player_move(is_attack):
         move_name = "attack" if is_attack else "defense"
         while True:
-            move = input("Enter your " + move_name + ": ")
+            move = input("Enter your " + move_name + " (1/'WIZARD', 2/'WARRIOR', 3/'BANDIT'): ").upper()
             if move in ["1", "2", "3"]:
-                move = int(move)
+                move = Attack(int(move))
                 break
-            print("Incorrect value, move should be 1, 2 or 3!")
+            elif move in ["WIZARD", "WARRIOR", "BANDIT"]:
+                move = Attack[move]
+                break
+            print("Incorrect value!")
         return move
